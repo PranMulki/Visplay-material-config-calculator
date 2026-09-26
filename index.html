@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Material Configuration Calculator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #222;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #444;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #f1f3f5;
+        }
+
+        .total {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .highlight {
+            background: #eef6ff;
+            font-weight: bold;
+        }
+
+        @media (max-width: 700px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Material Configuration Calculator</h1>
+
+    <p class="subtitle">
+        Electrical shelf / display system BOM calculator
+    </p>
+
+    <!-- INPUTS -->
+    <div class="card">
+
+        <h2>Project Configuration</h2>
+
+        <div class="grid">
+
+            <div>
+                <label>Electrical Zones / Converters</label>
+                <input type="number" id="zones" value="63" min="0">
+            </div>
+
+            <div>
+                <label>Extension Cables per Zone</label>
+                <input type="number" id="extensionsPerZone" value="4" min="0">
+            </div>
+
+            <div>
+                <label>Standard Brackets</label>
+                <input type="number" id="standardBrackets" value="65" min="0">
+            </div>
+
+            <div>
+                <label>Electrified Brackets per Standard Bracket</label>
+                <input type="number" id="electrifiedPerStandard" value="2" min="0">
+            </div>
+
+            <div>
+                <label>Holders per Mono 20 Set</label>
+                <input type="number" id="holdersPerSet" value="10" min="1">
+            </div>
+
+            <div>
+                <label>Total Mono 20 Holder Sets</label>
+                <input type="number" id="monoSets" value="89" min="0">
+            </div>
+
+        </div>
+
+        <button onclick="calculate()">Calculate BOM</button>
+
+    </div>
+
+
+    <!-- RESULTS -->
+    <div class="card">
+
+        <h2>Calculated Material Configuration</h2>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Material</th>
+                    <th>Calculation</th>
+                    <th>Required Qty</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr>
+                    <td>Mono 20 Electrified Holder Sets</td>
+                    <td id="monoCalculation">-</td>
+                    <td id="monoResult">-</td>
+                </tr>
+
+                <tr>
+                    <td>Individual Mono 20 Holders</td>
+                    <td id="holderCalculation">-</td>
+                    <td id="holderResult">-</td>
+                </tr>
+
+                <tr>
+                    <td>24V / 90W Converters</td>
+                    <td id="converterCalculation">-</td>
+                    <td id="converterResult">-</td>
+                </tr>
+
+                <tr>
+                    <td>UK Mains Cables</td>
+                    <td id="mainsCalculation">-</td>
+                    <td id="mainsResult">-</td>
+                </tr>
+
+                <tr>
+                    <td>6-Way 24V DC Distributors</td>
+                    <td id="distributorCalculation">-</td>
+                    <td id="distributorResult">-</td>
+                </tr>
+
+                <tr>
+                    <td>24V Extension Cables</td>
+                    <td id="extensionCalculation">-</td>
+                    <td id="extensionResult">-</td>
+                </tr>
+
+                <tr>
+                    <td>Electrified Shelf Brackets</td>
+                    <td id="electrifiedCalculation">-</td>
+                    <td id="electrifiedResult">-</td>
+                </tr>
+
+                <tr>
+                    <td>Standard Shelf Brackets</td>
+                    <td id="standardCalculation">-</td>
+                    <td id="standardResult">-</td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- CONFIGURATION LOGIC -->
+    <div class="card">
+
+        <h2>Configuration Summary</h2>
+
+        <p>
+            <strong>Electrical system:</strong>
+            1 converter → 1 mains cable → 1 distributor
+        </p>
+
+        <p>
+            <strong>Extension cables:</strong>
+            4 extension cables per electrical zone
+        </p>
+
+        <p>
+            <strong>Brackets:</strong>
+            2 electrified brackets per standard bracket
+        </p>
+
+        <p>
+            <strong>Mono 20:</strong>
+            10 holders per set
+        </p>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function calculate() {
+
+    // INPUTS
+
+    const zones =
+        Number(document.getElementById("zones").value);
+
+    const extensionsPerZone =
+        Number(document.getElementById("extensionsPerZone").value);
+
+    const standardBrackets =
+        Number(document.getElementById("standardBrackets").value);
+
+    const electrifiedPerStandard =
+        Number(document.getElementById("electrifiedPerStandard").value);
+
+    const holdersPerSet =
+        Number(document.getElementById("holdersPerSet").value);
+
+    const monoSets =
+        Number(document.getElementById("monoSets").value);
+
+
+    // CALCULATIONS
+
+    const holders =
+        monoSets * holdersPerSet;
+
+    const converters =
+        zones;
+
+    const mainsCables =
+        zones;
+
+    const distributors =
+        zones;
+
+    const extensionCables =
+        zones * extensionsPerZone;
+
+    const electrifiedBrackets =
+        standardBrackets * electrifiedPerStandard;
+
+
+    // DISPLAY RESULTS
+
+    document.getElementById("monoCalculation").innerText =
+        monoSets + " sets";
+
+    document.getElementById("monoResult").innerText =
+        monoSets;
+
+
+    document.getElementById("holderCalculation").innerText =
+        monoSets + " × " + holdersPerSet;
+
+    document.getElementById("holderResult").innerText =
+        holders;
+
+
+    document.getElementById("converterCalculation").innerText =
+        zones + " zones × 1";
+
+    document.getElementById("converterResult").innerText =
+        converters;
+
+
+    document.getElementById("mainsCalculation").innerText =
+        zones + " converters × 1";
+
+    document.getElementById("mainsResult").innerText =
+        mainsCables;
+
+
+    document.getElementById("distributorCalculation").innerText =
+        zones + " converters × 1";
+
+    document.getElementById("distributorResult").innerText =
+        distributors;
+
+
+    document.getElementById("extensionCalculation").innerText =
+        zones + " × " + extensionsPerZone;
+
+    document.getElementById("extensionResult").innerText =
+        extensionCables;
+
+
+    document.getElementById("electrifiedCalculation").innerText =
+        standardBrackets + " × " + electrifiedPerStandard;
+
+    document.getElementById("electrifiedResult").innerText =
+        electrifiedBrackets;
+
+
+    document.getElementById("standardCalculation").innerText =
+        "Input quantity";
+
+    document.getElementById("standardResult").innerText =
+        standardBrackets;
+}
+
+
+// Calculate automatically when page opens
+calculate();
+
+</script>
+
+</body>
+</html>
